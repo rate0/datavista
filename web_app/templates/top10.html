@@ -1,0 +1,190 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h2>Топ-10 записей по значению</h2>
+    <div class="row">
+        <div class="col-md-6 chart-container mb-4 d-flex align-items-stretch">
+            <canvas id="valueChart" class="w-100"></canvas>
+        </div>
+        <div class="col-md-6 chart-container mb-4 d-flex align-items-stretch">
+            <canvas id="trendChart" class="w-100"></canvas>
+        </div>
+    </div>
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Имя</th>
+                <th>Значение</th>
+                <th>Временная метка</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for record in records %}
+                <tr>
+                    <td>{{ record.id }}</td>
+                    <td>{{ record.name }}</td>
+                    <td>{{ record.value }}</td>
+                    <td>{{ record.timestamp }}</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const recordsCount = {{ records | length }};
+            if (recordsCount === 0) {
+                console.error('Нет данных для отображения графиков.');
+                return;
+            }
+
+            const labels = {{ records | map(attribute='name') | list | tojson }};
+            const dataValues = {{ records | map(attribute='value') | list | tojson }};
+
+            const minValue = Math.min(...dataValues);
+            const maxValue = Math.max(...dataValues);
+            const range = maxValue - minValue;
+            const padding = range * 0.1;
+
+            const barColors = [
+                'rgba(75, 192, 192, 0.6)',
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 206, 86, 0.6)',
+                'rgba(153, 102, 255, 0.6)',
+                'rgba(255, 159, 64, 0.6)',
+                'rgba(255, 99, 132, 0.6)',
+                'rgba(201, 203, 207, 0.6)',
+                'rgba(54, 162, 235, 0.6)',
+                'rgba(255, 206, 86, 0.6)',
+                'rgba(75, 192, 192, 0.6)'
+            ];
+
+            const ctxBar = document.getElementById('valueChart').getContext('2d');
+            const valueChart = new Chart(ctxBar, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Значение',
+                        data: dataValues,
+                        backgroundColor: barColors,
+                        borderColor: barColors.map(color => color.replace('0.6', '1')),
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    scales: {
+                        x: { 
+                            beginAtZero: false,
+                            min: minValue - padding,
+                            max: maxValue + padding,
+                            ticks: {
+                                precision:0
+                            },
+                            grid: {
+                                display: true,
+                                color: '#e9ecef'
+                            }
+                        },
+                        y: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Значение: ${context.parsed.x}`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 10,
+                            top: 10,
+                            bottom: 10
+                        }
+                    }
+                }
+            });
+
+            const ctxLine = document.getElementById('trendChart').getContext('2d');
+            const trendChart = new Chart(ctxLine, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Значение',
+                        data: dataValues,
+                        fill: false,
+                        borderColor: 'rgba(75, 192, 192, 1)',
+                        backgroundColor: 'rgba(75, 192, 192, 0.6)',
+                        tension: 0.1,
+                        pointBackgroundColor: barColors,
+                        pointBorderColor: barColors.map(color => color.replace('0.6', '1')),
+                        pointRadius: 5,
+                        pointHoverRadius: 7
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: false,
+                            min: minValue - padding,
+                            max: maxValue + padding,
+                            ticks: {
+                                precision:0
+                            },
+                            grid: {
+                                display: true,
+                                color: '#e9ecef'
+                            }
+                        },
+                        x: {
+                            grid: {
+                                display: false
+                            }
+                        }
+                    },
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Значение: ${context.parsed.y}`;
+                                }
+                            }
+                        },
+                        legend: {
+                            display: false
+                        }
+                    },
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    interaction: {
+                        mode: 'index',
+                        intersect: false,
+                    },
+                    layout: {
+                        padding: {
+                            left: 10,
+                            right: 10,
+                            top: 10,
+                            bottom: 10
+                        }
+                    }
+                }
+            });
+        });
+    </script>
+{% endblock %}
