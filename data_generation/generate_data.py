@@ -1,5 +1,3 @@
-# data_generation/generate_data.py
-
 import json
 import random
 from datetime import datetime, timedelta
