@@ -21,7 +21,7 @@ DataVista — это веб-приложение на базе Flask, предн
 1. **Клонирование репозитория:**
 
     ```bash
-    git clone https://github.com/ваш_пользователь/datavista.git
+    git clone https://github.com/rate0/datavista.git
     cd datavista
     ```
 
