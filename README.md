@@ -43,7 +43,7 @@ DataVista — это веб-приложение на базе Flask, предн
 1. **Запуск приложения:**
 
     ```bash
-    cd web_app
+    cd /datavista/web_app
     python app.py
     ```
 
