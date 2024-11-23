@@ -8,35 +8,33 @@
 </head>
 <body>
     <header class="bg-dark text-white p-3">
-        <div class="container d-flex justify-content-between align-items-center">
-            <h1 class="h4 m-0">DataVista</h1>
+        <div class="container">
             <nav class="navbar navbar-expand-lg navbar-dark">
-                <div class="container-fluid p-0">
-                    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
-                            aria-controls="navbarNav" aria-expanded="false" aria-label="Переключить навигацию">
-                        <span class="navbar-toggler-icon"></span>
-                    </button>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                            <li class="nav-item">
-                                <a href="{{ url_for('index') }}" class="nav-link">Главная</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url_for('top10') }}" class="nav-link">Топ-10</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url_for('search') }}" class="nav-link">Поиск</a>
-                            </li>
-                        </ul>
-                        <ul class="navbar-nav">
-                            <li class="nav-item">
-                                <a href="#" id="updateButtonNavbar" class="nav-link">Обновить данные</a>
-                            </li>
-                            <li class="nav-item">
-                                <a href="{{ url_for('logout') }}" class="nav-link">Выйти</a>
-                            </li>
-                        </ul>
-                    </div>
+                <a class="navbar-brand" href="{{ url_for('index') }}">DataVista</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                        aria-controls="navbarNav" aria-expanded="false" aria-label="Переключить навигацию">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        <li class="nav-item">
+                            <a href="{{ url_for('index') }}" class="nav-link">Главная</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url_for('top10') }}" class="nav-link">Топ-10</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url_for('search') }}" class="nav-link">Поиск</a>
+                        </li>
+                    </ul>
+                    <ul class="navbar-nav">
+                        <li class="nav-item">
+                            <a href="#" id="updateButtonNavbar" class="nav-link">Обновить данные</a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{ url_for('logout') }}" class="nav-link">Выйти</a>
+                        </li>
+                    </ul>
                 </div>
             </nav>
         </div>
@@ -59,6 +57,7 @@
         &copy; 2024 DataVista
     </footer>
 
+    <!-- Модальные окна -->
     <div class="modal fade" id="loadingModal" tabindex="-1" aria-labelledby="loadingModalLabel" aria-hidden="true">
       <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content bg-transparent border-0 shadow-none">
