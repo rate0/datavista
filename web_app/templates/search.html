@@ -47,11 +47,11 @@
             </tbody>
         </table>
 
-        <nav aria-label="Page navigation">
+        <nav aria-label="Навигация по страницам">
             <ul class="pagination justify-content-center">
-                {% set start_page = max(page - 2, 1) %}
-                {% set end_page = min(page + 2, total_pages) %}
-                
+                {% set start_page = [page - 2, 1] | max %}
+                {% set end_page = [page + 2, total_pages] | min %}
+
                 {% if start_page > 1 %}
                     <li class="page-item">
                         <a class="page-link" href="{{ url_for('search', page=1, query=query, min_value=min_value, max_value=max_value, start_date=start_date, end_date=end_date) }}">1</a>
@@ -62,7 +62,7 @@
                         </li>
                     {% endif %}
                 {% endif %}
-                
+
                 {% for p in range(start_page, end_page + 1) %}
                     {% if p == page %}
                         <li class="page-item active"><span class="page-link">{{ p }}</span></li>
@@ -70,7 +70,7 @@
                         <li class="page-item"><a class="page-link" href="{{ url_for('search', page=p, query=query, min_value=min_value, max_value=max_value, start_date=start_date, end_date=end_date) }}">{{ p }}</a></li>
                     {% endif %}
                 {% endfor %}
-                
+
                 {% if end_page < total_pages %}
                     {% if end_page < total_pages - 1 %}
                         <li class="page-item disabled">

@@ -15,19 +15,34 @@ load_dotenv()
 app = Flask(__name__)
 app.secret_key = os.getenv('SECRET_KEY', 'D3f4Ult') 
 
+# Определение базового каталога
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Пути к директориям logs и data
+LOGS_DIR = os.path.join(BASE_DIR, '../logs')
+DATA_DIR = os.path.join(BASE_DIR, '../data')
+
+# Создание директорий logs и data, если они не существуют
+os.makedirs(LOGS_DIR, exist_ok=True)
+os.makedirs(DATA_DIR, exist_ok=True)
+
+# Настройка логирования
 logger = logging.getLogger('werkzeug')
 logger.setLevel(logging.INFO)
-file_handler = logging.FileHandler('../logs/app.log', encoding='utf-8')
+file_handler = logging.FileHandler(os.path.join(LOGS_DIR, 'app.log'), encoding='utf-8')
 formatter = logging.Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]')
 file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 
+# Настройка Flask-Login
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
 
+# Настройка кэширования
 cache = Cache(app, config={'CACHE_TYPE': 'simple'}) 
 
+# Класс пользователя
 class User(UserMixin):
     def __init__(self, id, username, password_hash):
         self.id = id
@@ -37,10 +52,12 @@ class User(UserMixin):
     def verify_password(self, password):
         return check_password_hash(self.password_hash, password)
 
+# Пользователи
 users = {
     'admin': User(id=1, username='admin', password_hash=generate_password_hash('password'))
 }
 
+# Загрузка пользователя
 @login_manager.user_loader
 def load_user(user_id):
     for user in users.values():
@@ -48,12 +65,13 @@ def load_user(user_id):
             return user
     return None
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-DATA_FILE = os.path.join(BASE_DIR, '../data/sorted_data.json')
+# Пути к файлам и скриптам
+DATA_FILE = os.path.join(DATA_DIR, 'sorted_data.json')
 DATA_GENERATION_SCRIPT = os.path.join(BASE_DIR, '../data_generation/generate_data.py')
 DATA_SORTING_EXECUTABLE_WINDOWS = os.path.join(BASE_DIR, '../data_processing/sort_data.exe')
 DATA_SORTING_EXECUTABLE_UNIX = os.path.join(BASE_DIR, '../data_processing/sort_data')
 
+# Функция загрузки отсортированных данных
 def load_sorted_data():
     try:
         with open(DATA_FILE, 'r', encoding='utf-8') as f:
@@ -66,10 +84,12 @@ def load_sorted_data():
 
 sorted_data = []
 
+# Блокировки для потоков
 data_lock = threading.Lock()
 update_in_progress = False
 update_lock = threading.Lock()
 
+# Функция обеспечения наличия данных
 def ensure_data():
     global sorted_data
     data_exists = os.path.exists(DATA_FILE)
@@ -78,28 +98,41 @@ def ensure_data():
     with data_lock:
         sorted_data = load_sorted_data()
 
+# Функция генерации и сортировки данных
 def generate_and_sort_data(initial=False):
     global update_in_progress
     try:
+        if not initial:
+            logger.info("Запуск генерации данных.")
         data_gen_dir = os.path.join(BASE_DIR, '../data_generation')
         subprocess.run(['python', DATA_GENERATION_SCRIPT], check=True, cwd=data_gen_dir)
+        if not initial:
+            logger.info("Генерация данных завершена.")
+        
         if os.name == 'nt':
             sort_executable = DATA_SORTING_EXECUTABLE_WINDOWS
         else:
             sort_executable = DATA_SORTING_EXECUTABLE_UNIX
         
         if not os.path.exists(sort_executable):
-            logger.error(f"Файл сортировки {sort_executable} не найден.")
+            if not initial:
+                logger.error(f"Файл сортировки {sort_executable} не найден.")
             return
         
+        if not initial:
+            logger.info("Запуск сортировки данных.")
         data_proc_dir = os.path.join(BASE_DIR, '../data_processing')
         subprocess.run([sort_executable], check=True, cwd=data_proc_dir)
-        logger.info("Сортировка данных завершена.")
+        if not initial:
+            logger.info("Сортировка данных завершена.")
     except subprocess.CalledProcessError as e:
-        logger.error(f"Ошибка при генерации или сортировке данных: {e}")
+        if not initial:
+            logger.error(f"Ошибка при генерации или сортировке данных: {e}")
     finally:
         with update_lock:
             update_in_progress = False
+
+# Маршруты приложения
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():

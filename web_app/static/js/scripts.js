@@ -5,8 +5,11 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (updateButtonNavbar) {
         updateButtonNavbar.addEventListener('click', function (e) {
-            e.preventDefault(); 
-            updateButtonNavbar.classList.add('disabled');
+            e.preventDefault(); // Предотвращаем переход по ссылке
+            if (updateButtonNavbar.classList.contains('disabled')) {
+                return; // Если обновление уже в процессе, ничего не делаем
+            }
+            updateButtonNavbar.classList.add('disabled'); // Блокируем кнопку
             loadingModal.show();
             fetch('/update', {
                 method: 'POST',
